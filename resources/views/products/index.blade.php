@@ -84,7 +84,8 @@
                                                             value="{{ $item->name }}" required>
                                                     </div>
                                                     <div class="form-group">
-                                                        <label for="editProductQuantity{{ $item->id }}">Cantidad</label>
+                                                        <label
+                                                            for="editProductQuantity{{ $item->id }}">Cantidad</label>
                                                         <input type="number" class="form-control"
                                                             id="editProductQuantity{{ $item->id }}" name="quantity"
                                                             value="{{ $item->quantity }}" required>
@@ -277,8 +278,7 @@
     </div>
 
     <!-- Modal para agregar venta -->
-    <div class="modal fade" id="addSaleModal" tabindex="-1" role="dialog" aria-labelledby="addSaleModalLabel"
-        aria-hidden="true">
+    <div class="modal fade" id="addSaleModal" tabindex="-1" role="dialog" aria-labelledby="addSaleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -291,17 +291,21 @@
                     <form id="addSaleForm" method="POST" action="{{ route('products.registerSale') }}">
                         @csrf
                         <div class="form-group">
-                            <label for="saleProduct">Producto</label>
-                            <select class="form-control example" id="saleProduct" name="product_id" required>
+                            <label for="saleProductSearch">Buscar Producto</label>
+                            <input type="text" class="form-control" id="saleProductSearch" placeholder="Buscar producto...">
+                            <!-- Lista de productos filtrados -->
+                            <ul id="productList" class="list-group mt-2" style="max-height: 200px; overflow-y: auto; display: none;">
                                 @foreach ($items as $item)
-                                    <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                    <li class="list-group-item product-option" data-id="{{ $item->id }}" data-name="{{ $item->name }}">
+                                        {{ $item->name }}
+                                    </li>
                                 @endforeach
-                            </select>
+                            </ul>
                         </div>
+                        <input type="hidden" id="saleProduct" name="product_id">
                         <div class="form-group">
                             <label for="saleQuantity">Cantidad</label>
-                            <input type="number" class="form-control" id="saleQuantity" name="quantity" min="0"
-                                required autocomplete="off">
+                            <input type="number" class="form-control" id="saleQuantity" name="quantity" min="0" required autocomplete="off">
                         </div>
                         <button type="submit" class="btn btn-primary">Guardar</button>
                     </form>
