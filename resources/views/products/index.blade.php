@@ -18,43 +18,48 @@
             <div class="col-md-7">
                 <div class="d-flex align-items-center mb-3">
                     <h2 class="mr-3">Productos</h2>
-                    <input type="text" id="search" class="form-control w-50 mx-auto" placeholder="Buscar producto...">
+                    <input type="text" id="search" class="form-control w-50 mx-auto search" placeholder="Buscar producto...">
                 </div>
                 <div style="max-height: 400px; overflow-y: auto;">
-                    <table class="table table-hover table-sm text-center">
-                        <thead class="thead-dark sticky-top">
+                    <table class="table table-hover table-sm">
+                        <thead class="thead sticky-top">
                             <tr>
-                                <th>#</th>
                                 <th>Nombre</th>
-                                <th>Cantidad</th>
-                                <th>Costo</th>
-                                <th>Precio</th>
-                                <th>Averías</th>
-                                <th></th>
-                                <th></th>
+                                <th class="text-center">Cantidad</th>
+                                <th class="text-center">Costo</th>
+                                <th class="text-center">Precio</th>
+                                @if (count($faults) > 0)
+                                    <th class="text-center">Averías</th>
+                                @endif
+                                <th class="text-end"></th>
                             </tr>
                         </thead>
                         <tbody id="productTableBody">
                             @foreach ($items as $item)
                                 <tr>
-                                    <td>{{ $item->id }}</td>
+                                    <td hidden>{{ $item->id }}</td>
                                     <td>{{ $item->name }}</td>
-                                    <td>{{ $item->quantity }}</td>
-                                    <td>${{ number_format($item->cost, 0, ',', '.') }}</td>
-                                    <td>${{ number_format($item->price, 0, ',', '.') }}</td>
-                                    <td>{{ $item->faults }}</td>
-                                    <td>
+                                    <td class="text-center">{{ $item->quantity }}</td>
+                                    <td class="text-center">${{ number_format($item->cost, 0, ',', '.') }}</td>
+                                    <td class="text-center">${{ number_format($item->price, 0, ',', '.') }}</td>
+                                    @foreach ($faults as $fault)
+                                        @if ($fault->product_id == $item->id)
+                                            <td class="text-center">{{ $fault->total_faults }}</td>
+                                        @else
+                                            <td class="text-center">0</td>
+                                        @endif
+                                    @endforeach
+                                    <td class="text-center">
                                         <!-- Botón para abrir el modal de edición -->
                                         <button class="btn btn-sm btn-icon" data-toggle="modal"
                                             data-target="#editProductModal{{ $item->id }}" title="Editar producto">
-                                            <i class="fa-solid fa-pen-to-square"></i>
+                                            <i class="fa-solid fa-pen-to-square" style="color: #a9a9f4;"></i>
                                         </button>
-                                    </td>
-                                    <td>
+                                        
                                         <!-- Botón para abrir el modal de eliminación -->
                                         <button class="btn btn-sm btn-icon" data-toggle="modal"
                                             data-target="#deleteProductModal{{ $item->id }}" title="Eliminar producto">
-                                            <i class="fa-solid fa-trash-can"></i>
+                                            <i class="fa-solid fa-trash" style="color: #f4abb4;"></i>
                                         </button>
                                     </td>
                                 </tr>
@@ -67,7 +72,7 @@
                                         <div class="modal-content">
                                             <div class="modal-header">
                                                 <h5 class="modal-title" id="editProductModalLabel{{ $item->id }}">
-                                                    Editar Producto</h5>
+                                                    Editar producto</h5>
                                                 <button type="button" class="close" data-dismiss="modal"
                                                     aria-label="Close">
                                                     <span aria-hidden="true">&times;</span>
@@ -88,7 +93,7 @@
                                                             for="editProductQuantity{{ $item->id }}">Cantidad</label>
                                                         <input type="number" class="form-control"
                                                             id="editProductQuantity{{ $item->id }}" name="quantity"
-                                                            value="{{ $item->quantity }}" required>
+                                                            value="{{ $item->quantity }}" readonly>
                                                     </div>
                                                     <div class="form-group">
                                                         <label for="editProductCost{{ $item->id }}">Costo</label>
@@ -117,7 +122,7 @@
                                         <div class="modal-content">
                                             <div class="modal-header">
                                                 <h5 class="modal-title" id="deleteProductModalLabel{{ $item->id }}">
-                                                    Eliminar Producto</h5>
+                                                    Eliminar producto</h5>
                                                 <button type="button" class="close" data-dismiss="modal"
                                                     aria-label="Close">
                                                     <span aria-hidden="true">&times;</span>
@@ -143,22 +148,22 @@
             <div class="col-md-5">
                 <h2>Ventas</h2>
                 <div style="max-height: 400px; overflow-y: auto;">
-                    <table class="table table-hover table-sm text-center my-3">
-                        <thead class="thead-dark sticky-top">
+                    <table class="table table-hover table-sm my-3">
+                        <thead class="thead sticky-top">
                             <tr>
                                 <th>Fecha</th>
                                 <th>Producto</th>
-                                <th>Cantidad</th>
-                                <th>Total</th>
+                                <th class="text-center">Cantidad</th>
+                                <th class="text-center">Total</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($salesByDate as $sale)
                                 <tr>
-                                    <td>{{ $sale->date }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($sale->date)->format('d-m-Y') }}</td>
                                     <td>{{ $sale->product_name }}</td>
-                                    <td>{{ $sale->quantity }}</td>
-                                    <td>${{ number_format($sale->total_sale, 0, ',', '.') }}</td>
+                                    <td class="text-center">{{ $sale->quantity }}</td>
+                                    <td class="text-center">${{ number_format($sale->total_sale, 0, ',', '.') }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -174,7 +179,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addProductModalLabel">Registrar Producto</h5>
+                    <h5 class="modal-title" id="addProductModalLabel">Registrar producto</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -183,7 +188,7 @@
                     <form id="addProductForm" method="POST" action="{{ route('products.store') }}">
                         @csrf
                         <div class="form-group">
-                            <label for="productName">Nombre del Producto</label>
+                            <label for="productName">Nombre del producto</label>
                             <input type="text" class="form-control" id="productName" name="name" required
                                 autocomplete="off">
                         </div>
@@ -215,7 +220,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addFaultModalLabel">Registrar Avería</h5>
+                    <h5 class="modal-title" id="addFaultModalLabel">Registrar avería</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -224,13 +229,17 @@
                     <form id="addFaultForm" method="POST" action="{{ route('products.addFault') }}">
                         @csrf
                         <div class="form-group">
-                            <label for="faultProduct">Producto</label>
-                            <select class="form-control" id="faultProduct" name="product_id" required>
+                            <label for="faultProductSearch">Producto</label>
+                            <input type="text" class="form-control" id="faultProductSearch" placeholder="Buscar producto...">
+                            <ul id="faultProductList" class="list-group mt-2" style="max-height: 200px; overflow-y: auto; display: none;">
                                 @foreach ($items as $item)
-                                    <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                    <li class="list-group-item product-option" data-id="{{ $item->id }}" data-name="{{ $item->name }}">
+                                        {{ $item->name }}
+                                    </li>
                                 @endforeach
-                            </select>
+                            </ul>
                         </div>
+                        <input type="hidden" id="faultProduct" name="product_id">
                         <div class="form-group">
                             <label for="faultQuantity">Cantidad</label>
                             <input type="number" class="form-control" id="faultQuantity" name="quantity"
@@ -249,7 +258,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addEntryModalLabel">Registrar Entrada</h5>
+                    <h5 class="modal-title" id="addEntryModalLabel">Registrar entrada</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -258,13 +267,17 @@
                     <form id="addEntryForm" method="POST" action="{{ route('products.addEntry') }}">
                         @csrf
                         <div class="form-group">
-                            <label for="entryProduct">Producto</label>
-                            <select class="form-control" id="entryProduct" name="product_id" required>
+                            <label for="entryProductSearch">Producto</label>
+                            <input type="text" class="form-control" id="entryProductSearch" placeholder="Buscar producto...">
+                            <ul id="entryProductList" class="list-group mt-2" style="max-height: 200px; overflow-y: auto; display: none;">
                                 @foreach ($items as $item)
-                                    <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                    <li class="list-group-item product-option" data-id="{{ $item->id }}" data-name="{{ $item->name }}">
+                                        {{ $item->name }}
+                                    </li>
                                 @endforeach
-                            </select>
+                            </ul>
                         </div>
+                        <input type="hidden" id="entryProduct" name="product_id">
                         <div class="form-group">
                             <label for="entryQuantity">Cantidad</label>
                             <input type="number" class="form-control" id="entryQuantity" name="quantity" required
@@ -282,7 +295,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addSaleModalLabel">Registrar Venta</h5>
+                    <h5 class="modal-title" id="addSaleModalLabel">Registrar venta</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -291,10 +304,9 @@
                     <form id="addSaleForm" method="POST" action="{{ route('products.registerSale') }}">
                         @csrf
                         <div class="form-group">
-                            <label for="saleProductSearch">Buscar Producto</label>
+                            <label for="saleProductSearch">Producto</label>
                             <input type="text" class="form-control" id="saleProductSearch" placeholder="Buscar producto...">
-                            <!-- Lista de productos filtrados -->
-                            <ul id="productList" class="list-group mt-2" style="max-height: 200px; overflow-y: auto; display: none;">
+                            <ul id="saleProductList" class="list-group mt-2" style="max-height: 200px; overflow-y: auto; display: none;">
                                 @foreach ($items as $item)
                                     <li class="list-group-item product-option" data-id="{{ $item->id }}" data-name="{{ $item->name }}">
                                         {{ $item->name }}
@@ -318,10 +330,10 @@
         <div class="col-md-12 d-flex justify content-betwen">
             @foreach ($salesData as $sales)
                 <div class="p-2">
-                    <h6>Venta total del dia: ${{ number_format($sales->total_sales, 0, ',', '.') }}</h6>
+                    <h6 class="my-2">Venta total del dia: ${{ number_format($sales->total_sales, 0, ',', '.') }}</h6>
                 </div>
                 <div class="p-2 mx-4">
-                    <h6>Utilidad total del dia: ${{ number_format($sales->total_profit, 0, ',', '.') }}</h6>
+                    <h6 class="my-2">Utilidad total del dia: ${{ number_format($sales->total_profit, 0, ',', '.') }}</h6>
                 </div>
             @endforeach
         </div>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
@@ -9,11 +9,17 @@
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link href="{{ asset('vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ asset('vendor/fontawesome/css/all.min.css') }}" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Doto:wght@100..900&family=Vidaloka&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oranienbaum&display=swap" rel="stylesheet">
 </head>
 
-<body class="container-fluid m-0 p-0">
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="#"><i class="fa-solid fa-ice-cream"></i> Los Cremosos</a>
+<body class="container-fluid m-0 p-0 body">
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <a class="navbar-brand btn-icon" href="#"><i class="fa-solid fa-ice-cream"></i> Los Cremosos</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
             aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -41,7 +47,7 @@
                         <div class="form-row align-items-center mx-2">
                             <div class="col-auto">
                                 <label for="day" class="sr-only">Mes</label>
-                                <input type="date" class="form-control mb-2 my-1" id="day" name="day" value="{{ $day }}">
+                                <input type="date" class="form-control mb-2 my-1 search" id="day" name="day" value="{{ $day }}">
                             </div>
                             <div class="col-auto">
                                 <button type="submit" class="btn btn-icon mb-2 my-1" title="Filtrar"><i class="fa-solid fa-magnifying-glass"></i></button>

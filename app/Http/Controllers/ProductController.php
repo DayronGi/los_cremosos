@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\Sale;
+use App\Models\Fault;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -14,6 +15,11 @@ class ProductController extends Controller
         $day = $request->input('day', date('Y-m-d'));
 
         $items = Product::all();
+        $faults = Fault::selectRaw('product_id, SUM(quantity) as total_faults')
+            ->whereRaw('DATE_FORMAT(faults.date, "%Y-%m-%d") = ?', [$day])
+            ->groupBy('product_id')
+            ->get();
+
         $salesByDate = Sale::selectRaw('DATE(sales.date) as date, total_sale, quantity, product_id')
             ->whereRaw('DATE_FORMAT(sales.date, "%Y-%m-%d") = ?', [$day])
             ->groupBy('date', 'quantity', 'product_id', 'total_sale')
@@ -33,7 +39,7 @@ class ProductController extends Controller
             $salesData = collect([ (object) ['total_sales' => 0, 'total_profit' => 0] ]);
         }
 
-        return view('products.index', compact('items', 'salesByDate', 'day', 'salesData'));
+        return view('products.index', compact('items', 'salesByDate', 'day', 'salesData', 'faults'));
     }
 
     public function store(Request $request)
@@ -76,9 +82,16 @@ class ProductController extends Controller
             return redirect()->back()->withErrors(['quantity' => 'La cantidad de averías no puede ser mayor que la cantidad disponible.']);
         }
 
-        $product->faults += $faultQuantity;
+        $fault = Fault::create([
+            'product_id' => $product->id,
+            'quantity' => $faultQuantity,
+            'date' => Carbon::now(),
+        ]);
+
+        // $product->faults += $faultQuantity;
         $product->quantity -= $faultQuantity;
         $product->save();
+        $fault->save();
 
         return redirect()->route('products.index')->with('success', 'Avería registrada exitosamente.');
     }
