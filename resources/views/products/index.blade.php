@@ -18,7 +18,8 @@
             <div class="col-md-7">
                 <div class="d-flex align-items-center mb-3">
                     <h2 class="mr-3">Productos</h2>
-                    <input type="text" id="search" class="form-control w-50 mx-auto search" placeholder="Buscar producto...">
+                    <input type="text" id="search" class="form-control w-50 mx-auto search"
+                        placeholder="Buscar producto...">
                 </div>
                 <div style="max-height: 400px; overflow-y: auto;">
                     <table class="table table-hover table-sm">
@@ -28,9 +29,7 @@
                                 <th class="text-center">Cantidad</th>
                                 <th class="text-center">Costo</th>
                                 <th class="text-center">Precio</th>
-                                @if (count($faults) > 0)
-                                    <th class="text-center">Averías</th>
-                                @endif
+                                <th class="text-center">Averías</th>
                                 <th class="text-end"></th>
                             </tr>
                         </thead>
@@ -42,28 +41,26 @@
                                     <td class="text-center">{{ $item->quantity }}</td>
                                     <td class="text-center">${{ number_format($item->cost, 0, ',', '.') }}</td>
                                     <td class="text-center">${{ number_format($item->price, 0, ',', '.') }}</td>
-                                    @foreach ($faults as $fault)
-                                        @if ($fault->product_id == $item->id)
-                                            <td class="text-center">{{ $fault->total_faults }}</td>
-                                        @else
-                                            <td class="text-center">0</td>
-                                        @endif
-                                    @endforeach
+                                    @php
+                                        $faultCount = $faults->firstWhere('product_id', $item->id)->total_faults ?? 0;
+                                    @endphp
+                                    <td class="text-center">{{ $faultCount }}</td>
                                     <td class="text-center">
+
                                         <!-- Botón para abrir el modal de edición -->
                                         <button class="btn btn-sm btn-icon" data-toggle="modal"
                                             data-target="#editProductModal{{ $item->id }}" title="Editar producto">
-                                            <i class="fa-solid fa-pen-to-square" style="color: #a9a9f4;"></i>
+                                            <i class="fa-solid fa-pen-to-square btn-edit"></i>
                                         </button>
-                                        
+                        
                                         <!-- Botón para abrir el modal de eliminación -->
                                         <button class="btn btn-sm btn-icon" data-toggle="modal"
                                             data-target="#deleteProductModal{{ $item->id }}" title="Eliminar producto">
-                                            <i class="fa-solid fa-trash" style="color: #f4abb4;"></i>
+                                            <i class="fa-solid fa-trash btn-delete"></i>
                                         </button>
                                     </td>
                                 </tr>
-
+                                
                                 <!-- Modal para editar producto -->
                                 <div class="modal fade" id="editProductModal{{ $item->id }}" tabindex="-1"
                                     role="dialog" aria-labelledby="editProductModalLabel{{ $item->id }}"
@@ -71,10 +68,8 @@
                                     <div class="modal-dialog" role="document">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h5 class="modal-title" id="editProductModalLabel{{ $item->id }}">
-                                                    Editar producto</h5>
-                                                <button type="button" class="close" data-dismiss="modal"
-                                                    aria-label="Close">
+                                                <h5 class="modal-title" id="editProductModalLabel{{ $item->id }}">Editar producto</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                     <span aria-hidden="true">&times;</span>
                                                 </button>
                                             </div>
@@ -82,32 +77,37 @@
                                                 <form action="{{ url('products/' . $item->id) }}" method="POST">
                                                     @csrf
                                                     @method('PUT')
-                                                    <div class="form-group">
-                                                        <label for="editProductName{{ $item->id }}">Nombre</label>
-                                                        <input type="text" class="form-control"
-                                                            id="editProductName{{ $item->id }}" name="name"
-                                                            value="{{ $item->name }}" required>
+                                                    <div class="d-inline-flex flex-row gap-2">
+                                                        <div class="input-group my-2">
+                                                            <label for="editProductName{{ $item->id }}" class="input-group-text"><i class="fas fa-tag"></i></label>
+                                                            <input type="text" class="form-control p-0 px-2" id="editProductName{{ $item->id }}" name="name" value="{{ $item->name }}" placeholder="Nombre..." autocomplete="off" required>
+                                                        </div>
                                                     </div>
-                                                    <div class="form-group">
-                                                        <label
-                                                            for="editProductQuantity{{ $item->id }}">Cantidad</label>
-                                                        <input type="number" class="form-control"
-                                                            id="editProductQuantity{{ $item->id }}" name="quantity"
-                                                            value="{{ $item->quantity }}" readonly>
+
+                                                    <div class="d-inline-flex flex-row gap-2">
+                                                        <div class="input-group my-2">
+                                                            <label for="editProductQuantity{{ $item->id }}" class="input-group-text"><i class="fas fa-hashtag"></i></label>
+                                                            <input class="form-control p-0 px-2" id="editProductQuantity{{ $item->id }}" name="quantity" value="{{ $item->quantity }}" readonly>
+                                                        </div>
                                                     </div>
-                                                    <div class="form-group">
-                                                        <label for="editProductCost{{ $item->id }}">Costo</label>
-                                                        <input type="number" class="form-control"
-                                                            id="editProductCost{{ $item->id }}" name="cost"
-                                                            value="{{ $item->cost }}" required>
+
+                                                    <div class="d-inline-flex flex-row gap-2">
+                                                        <div class="input-group my-2">
+                                                            <label for="editProductCost{{ $item->id }}" class="input-group-text"><i class="fas fa-coins"></i></label>
+                                                            <input type="number" class="form-control" id="editProductCost{{ $item->id }}" name="cost" value="{{ $item->cost }}" placeholder="Costo..." autocomplete="off" required>
+                                                        </div>
                                                     </div>
-                                                    <div class="form-group">
-                                                        <label for="editProductPrice{{ $item->id }}">Precio</label>
-                                                        <input type="number" class="form-control"
-                                                            id="editProductPrice{{ $item->id }}" name="price"
-                                                            value="{{ $item->price }}" required>
+
+                                                    <div class="d-inline-flex flex-row gap-2">
+                                                        <div class="input-group my-2">
+                                                            <label for="editProductPrice{{ $item->id }}" class="input-group-text"><i class="fas fa-dollar-sign"></i></label>
+                                                            <input type="number" class="form-control" id="editProductPrice{{ $item->id }}" name="price" value="{{ $item->price }}" placeholder="Precio..." autocomplete="off" required>
+                                                        </div>
                                                     </div>
-                                                    <button type="submit" class="btn btn-primary">Guardar</button>
+
+                                                    <br>
+
+                                                    <button type="submit" class="btn btn-primary my-2 btn-success"><i class="fas fa-save"></i> Guardar</button>
                                                 </form>
                                             </div>
                                         </div>
@@ -121,10 +121,8 @@
                                     <div class="modal-dialog" role="document">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h5 class="modal-title" id="deleteProductModalLabel{{ $item->id }}">
-                                                    Eliminar producto</h5>
-                                                <button type="button" class="close" data-dismiss="modal"
-                                                    aria-label="Close">
+                                                <h5 class="modal-title" id="deleteProductModalLabel{{ $item->id }}">Eliminar producto</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                     <span aria-hidden="true">&times;</span>
                                                 </button>
                                             </div>
@@ -133,7 +131,7 @@
                                                     @csrf
                                                     @method('DELETE')
                                                     <p>¿Estás seguro de que deseas eliminar este producto?</p>
-                                                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                                                    <button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i> Eliminar</button>
                                                 </form>
                                             </div>
                                         </div>
@@ -187,27 +185,37 @@
                 <div class="modal-body">
                     <form id="addProductForm" method="POST" action="{{ route('products.store') }}">
                         @csrf
-                        <div class="form-group">
-                            <label for="productName">Nombre del producto</label>
-                            <input type="text" class="form-control" id="productName" name="name" required
-                                autocomplete="off">
+                        <div class="d-inline-flex flex-row gap-2">
+                            <div class="input-group my-2">
+                                <label for="productName" class="input-group-text"><i class="fas fa-tag"></i></label>
+                                <input type="text" class="form-control p-0 px-2" id="productName" name="name" placeholder="Nombre..." required autocomplete="off">
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="productQuantity">Cantidad</label>
-                            <input type="number" class="form-control" id="productQuantity" name="quantity" required
-                                autocomplete="off">
+
+                        <div class="d-inline-flex flex-row gap-2">
+                            <div class="input-group my-2">
+                                <label for="productQuantity" class="input-group-text"><i class="fas fa-hashtag"></i></label>
+                                <input type="number" class="form-control p-0 px-2" id="productQuantity" name="quantity" placeholder="Cantidad..." min="1" required autocomplete="off">
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="productCost">Costo</label>
-                            <input type="number" class="form-control" id="productCost" name="cost" required
-                                autocomplete="off">
+
+                        <div class="d-inline-flex flex-row gap-2">
+                            <div class="input-group my-2">
+                                <label for="productCost" class="input-group-text"><i class="fas fa-coins"></i></label>
+                                <input type="number" class="form-control p-0 px-2" id="productCost" name="cost" placeholder="Costo..." required autocomplete="off">
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="productPrice">Precio</label>
-                            <input type="number" class="form-control" id="productPrice" name="price" required
-                                autocomplete="off">
+
+                        <div class="d-inline-flex flex-row gap-2">
+                            <div class="input-group my-2">
+                                <label for="productPrice" class="input-group-text"><i class="fas fa-dollar-sign"></i></label>
+                                <input type="number" class="form-control p-0 px-2" id="productPrice" name="price" placeholder="Precio..." required autocomplete="off">
+                            </div>
                         </div>
-                        <button type="submit" class="btn btn-primary">Guardar</button>
+
+                        <br>
+
+                        <button type="submit" class="btn btn-primary my-2 btn-success"><i class="fas fa-save"></i> Guardar</button>
                     </form>
                 </div>
             </div>
@@ -215,8 +223,7 @@
     </div>
 
     <!-- Modal para agregar avería -->
-    <div class="modal fade" id="addFaultModal" tabindex="-1" role="dialog" aria-labelledby="addFaultModalLabel"
-        aria-hidden="true">
+    <div class="modal fade" id="addFaultModal" tabindex="-1" role="dialog" aria-labelledby="addFaultModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -225,27 +232,35 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
+
                 <div class="modal-body">
                     <form id="addFaultForm" method="POST" action="{{ route('products.addFault') }}">
                         @csrf
-                        <div class="form-group">
-                            <label for="faultProductSearch">Producto</label>
-                            <input type="text" class="form-control" id="faultProductSearch" placeholder="Buscar producto...">
-                            <ul id="faultProductList" class="list-group mt-2" style="max-height: 200px; overflow-y: auto; display: none;">
-                                @foreach ($items as $item)
+                        <div class="d-inline-flex flex-row gap-2">
+                            <div class="input-group my-2">
+                                <label for="faultProductSearch" class="input-group-text"><i class="fas fa-tag"></i></label>
+                                <input type="text" class="form-control p-0 px-2" id="faultProductSearch" placeholder="Buscar producto...">
+                                <ul id="faultProductList" class="productList list-group mt-2">
+                                    @foreach ($items as $item)
                                     <li class="list-group-item product-option" data-id="{{ $item->id }}" data-name="{{ $item->name }}">
                                         {{ $item->name }}
                                     </li>
-                                @endforeach
-                            </ul>
+                                    @endforeach
+                                </ul>
+                            </div>
                         </div>
-                        <input type="hidden" id="faultProduct" name="product_id">
-                        <div class="form-group">
-                            <label for="faultQuantity">Cantidad</label>
-                            <input type="number" class="form-control" id="faultQuantity" name="quantity"
-                                min="0" required autocomplete="off">
+
+                        <div class="d-inline-flex flex-row gap-2">
+                            <div class="input-group my-2">
+                                <input type="hidden" id="faultProduct" name="product_id">
+                                <label for="faultQuantity" class="input-group-text"><i class="fas fa-hashtag"></i></label>
+                                <input type="number" class="form-control p-0 px-2" id="faultQuantity" name="quantity" min="1" placeholder="Cantidad..." required autocomplete="off">
+                            </div>
                         </div>
-                        <button type="submit" class="btn btn-primary">Guardar</button>
+
+                        <br>
+
+                        <button type="submit" class="btn btn-primary my-2 btn-success"><i class="fas fa-save"></i> Guardar</button>
                     </form>
                 </div>
             </div>
@@ -253,8 +268,7 @@
     </div>
 
     <!-- Modal para agregar entrada -->
-    <div class="modal fade" id="addEntryModal" tabindex="-1" role="dialog" aria-labelledby="addEntryModalLabel"
-        aria-hidden="true">
+    <div class="modal fade" id="addEntryModal" tabindex="-1" role="dialog" aria-labelledby="addEntryModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -263,27 +277,35 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
+
                 <div class="modal-body">
                     <form id="addEntryForm" method="POST" action="{{ route('products.addEntry') }}">
                         @csrf
-                        <div class="form-group">
-                            <label for="entryProductSearch">Producto</label>
-                            <input type="text" class="form-control" id="entryProductSearch" placeholder="Buscar producto...">
-                            <ul id="entryProductList" class="list-group mt-2" style="max-height: 200px; overflow-y: auto; display: none;">
-                                @foreach ($items as $item)
-                                    <li class="list-group-item product-option" data-id="{{ $item->id }}" data-name="{{ $item->name }}">
-                                        {{ $item->name }}
-                                    </li>
-                                @endforeach
-                            </ul>
+                        <div class="d-inline-flex flex-row gap-2">
+                            <div class="input-group my-2">
+                                <label for="entryProductSearch" class="input-group-text"><i class="fas fa-tag"></i></label>
+                                <input type="text" class="form-control p-0 px-2" id="entryProductSearch" placeholder="Buscar producto...">
+                                <ul id="entryProductList" class="productList list-group mt-2">
+                                    @foreach ($items as $item)
+                                        <li class="list-group-item product-option" data-id="{{ $item->id }}" data-name="{{ $item->name }}">
+                                            {{ $item->name }}
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </div>
                         </div>
-                        <input type="hidden" id="entryProduct" name="product_id">
-                        <div class="form-group">
-                            <label for="entryQuantity">Cantidad</label>
-                            <input type="number" class="form-control" id="entryQuantity" name="quantity" required
-                                autocomplete="off">
+
+                        <div class="d-inline-flex flex-row gap-2">
+                            <div class="input-group my-2">
+                                <input type="hidden" id="entryProduct" name="product_id">
+                                <label for="entryQuantity" class="input-group-text"><i class="fas fa-hashtag"></i></label>
+                                <input type="number" class="form-control p-0 px-2" id="entryQuantity" name="quantity" placeholder="Cantidad..." min="1" required autocomplete="off">
+                            </div>
                         </div>
-                        <button type="submit" class="btn btn-primary">Guardar</button>
+                            
+                        <br>
+
+                        <button type="submit" class="btn btn-primary my-2 btn-success"><i class="fas fa-save"></i> Guardar</button>
                     </form>
                 </div>
             </div>
@@ -291,7 +313,8 @@
     </div>
 
     <!-- Modal para agregar venta -->
-    <div class="modal fade" id="addSaleModal" tabindex="-1" role="dialog" aria-labelledby="addSaleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="addSaleModal" tabindex="-1" role="dialog" aria-labelledby="addSaleModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -303,23 +326,31 @@
                 <div class="modal-body">
                     <form id="addSaleForm" method="POST" action="{{ route('products.registerSale') }}">
                         @csrf
-                        <div class="form-group">
-                            <label for="saleProductSearch">Producto</label>
-                            <input type="text" class="form-control" id="saleProductSearch" placeholder="Buscar producto...">
-                            <ul id="saleProductList" class="list-group mt-2" style="max-height: 200px; overflow-y: auto; display: none;">
-                                @foreach ($items as $item)
+                        <div class="d-inline-flex flex-row gap-2">
+                            <div class="input-group my-2">
+                                <label for="saleProductSearch" class="input-group-text"><i class="fas fa-tag"></i></label>
+                                <input type="text" class="form-control p-0 px-2" id="saleProductSearch" placeholder="Buscar producto...">
+                                <ul id="saleProductList" class="productList list-group mt-2">
+                                    @foreach ($items as $item)
                                     <li class="list-group-item product-option" data-id="{{ $item->id }}" data-name="{{ $item->name }}">
                                         {{ $item->name }}
                                     </li>
-                                @endforeach
-                            </ul>
+                                    @endforeach
+                                </ul>
+                            </div>
                         </div>
-                        <input type="hidden" id="saleProduct" name="product_id">
-                        <div class="form-group">
-                            <label for="saleQuantity">Cantidad</label>
-                            <input type="number" class="form-control" id="saleQuantity" name="quantity" min="0" required autocomplete="off">
+
+                        <div class="d-inline-flex flex-row gap-2">
+                            <div class="input-group my-2">
+                                <input type="hidden" id="saleProduct" name="product_id">
+                                <label for="saleQuantity" class="input-group-text"><i class="fas fa-hashtag"></i></label>
+                                <input type="number" class="form-control p-0 px-2" id="saleQuantity" name="quantity" min="0" placeholder="Cantidad..." required autocomplete="off">
+                            </div>
                         </div>
-                        <button type="submit" class="btn btn-primary">Guardar</button>
+
+                        <br>
+
+                        <button type="submit" class="btn btn-primary my-2 btn-success"><i class="fas fa-save"></i> Guardar</button>
                     </form>
                 </div>
             </div>
@@ -333,7 +364,8 @@
                     <h6 class="my-2">Venta total del dia: ${{ number_format($sales->total_sales, 0, ',', '.') }}</h6>
                 </div>
                 <div class="p-2 mx-4">
-                    <h6 class="my-2">Utilidad total del dia: ${{ number_format($sales->total_profit, 0, ',', '.') }}</h6>
+                    <h6 class="my-2">Utilidad total del dia: ${{ number_format($sales->total_profit, 0, ',', '.') }}
+                    </h6>
                 </div>
             @endforeach
         </div>
